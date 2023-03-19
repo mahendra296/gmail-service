@@ -33,4 +33,9 @@ public class DispatchService {
         // sends two emails from queue every second
         gmailService.sendMailFromQueue();
     }
+
+    @Scheduled(fixedRate = 1800000)
+    private void refreshAccessToken() {
+        gmailService.refreshAccessToken();
+    }
 }

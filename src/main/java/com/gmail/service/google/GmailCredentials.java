@@ -10,9 +10,9 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class GmailCredentials implements Serializable {
-    private final String userEmail;
-    private final String clientId;
-    private final String clientSecret;
-    private final String accessToken;
-    private final String refreshToken;
+    private String userEmail;
+    private String clientId;
+    private String clientSecret;
+    private String accessToken;
+    private String refreshToken;
 }

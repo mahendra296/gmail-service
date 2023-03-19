@@ -1,13 +1,17 @@
 package com.gmail.service.google;
 
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 import com.gmail.config.AppConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.mail.BodyPart;
@@ -25,15 +29,13 @@ import java.util.LinkedList;
 import java.util.Properties;
 import java.util.Queue;
 
+@Slf4j
 public final class GmailServiceImpl implements GmailService {
 
     private static final String APPLICATION_NAME = "Test Application";
-
     private static final GsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-
     private HttpTransport httpTransport;
     private GmailCredentials gmailCredentials;
-
     private final Queue<Message> emailQueue = new LinkedList<>();
 
     public GmailServiceImpl(HttpTransport httpTransport) {
@@ -141,4 +143,22 @@ public final class GmailServiceImpl implements GmailService {
                 .setRefreshToken(gmailCredentials.getRefreshToken());
     }
 
+    @Override
+    public void refreshAccessToken() {
+        log.info("Invoke refreshAccessToken method.");
+        try {
+            NetHttpTransport netHttpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            TokenResponse response = new GoogleRefreshTokenRequest(
+                    netHttpTransport,
+                    JSON_FACTORY,
+                    gmailCredentials.getRefreshToken(),
+                    gmailCredentials.getClientId(),
+                    gmailCredentials.getClientSecret()).execute();
+            log.info("Access token : {}", response.getAccessToken());
+            gmailCredentials.setAccessToken(response.getAccessToken());
+        } catch (Exception ex) {
+            log.error("Exception while get access token.", ex);
+            throw new RuntimeException("Exception while get access token.");
+        }
+    }
 }

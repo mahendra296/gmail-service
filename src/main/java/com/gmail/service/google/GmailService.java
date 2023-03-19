@@ -13,4 +13,6 @@ public interface GmailService {
     void init(AppConfig coffeeSpaceEnvConfig);
 
     void sendMailFromQueue() throws IOException;
+
+    void refreshAccessToken();
 }
